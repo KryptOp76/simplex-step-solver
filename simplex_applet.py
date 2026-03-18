@@ -105,7 +105,7 @@ Enter your initial canonical form below (comma-separated values, one row per lin
 
 ⚠️ **Important:** For the objective row (Z), input the **literal coefficients** exactly as they appear in your canonical form. Do not manually reverse the signs!
             
-📝 **Equation Format:** Assume the objective equation is in the form: $\\sum(c_jx_j) = \\text{Constant} + Z$
+📝 **Equation Format:** Assume the objective equation is in the form: $\\sum(c_ix_i) = \\text{Constant} + Z$
 """)
 
 # --- User selects optimization type ---
@@ -114,7 +114,7 @@ problem_type = st.radio("Optimization Type:", ("Minimize", "Maximize"))
 default_matrix = "1.0, 1.0, 1.0, 0.0, 4.0\n1.0, -1.0, 0.0, 1.0, 2.0\n-3.0, -2.0, 0.0, 0.0, 0.0"
 user_input = st.text_area("Initial Canonical Form:", value=default_matrix, height=150)
 
-if st.button("Solve Simplex"):
+if st.button("Solve"):
     try:
         rows = user_input.strip().split('\n')
         matrix_data = [[float(val.strip()) for val in row.split(',')] for row in rows]
@@ -188,4 +188,12 @@ if st.button("Solve Simplex"):
 
 # --- FOOTER ---
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #888888;'>Developed by <b>Irfan Rahman Rasib</b></p>", unsafe_allow_html=True)
+footer_html = """
+<div style='text-align: center;'>
+    <p style='color: #888888; margin-bottom: 5px;'>Developed by <b>Irfan Rahman Rasib</b></p>
+    <a href="https://github.com/KryptOp76/simplex-step-solver" target="_blank">
+        <img src="https://img.shields.io/badge/GitHub-View_Repository-181717?logo=github" alt="GitHub Repository">
+    </a>
+</div>
+"""
+st.markdown(footer_html, unsafe_allow_html=True)
