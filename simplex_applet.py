@@ -102,8 +102,6 @@ st.markdown("""
 Enter your initial canonical form below (comma-separated values, one row per line).
             
 💡 **Note:** The applet supports any number of variables and constraints! Just make sure every row has the same number of columns.
-
-⚠️ **Important:** For the objective row (Z), input the **literal coefficients** exactly as they appear in your canonical form. Do not manually reverse the signs!
             
 📝 **Equation Format:** Assume the objective equation is in the form: $\\sum(c_ix_i) = \\text{Constant} + Z$
 """)
