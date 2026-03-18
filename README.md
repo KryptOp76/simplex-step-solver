@@ -9,6 +9,19 @@ A step-by-step Simplex Method solver developed as a task for MAT316: Operations 
     * **Infeasibility:** Validates initial basic solutions for non-negative RHS values.
 
 ## 🛠️ Technical Stack
-* **Language:** Python 3.x
+* **Language:** Python 3
 * **Framework:** [Streamlit](https://streamlit.io/) (Web Interface)
 * **Libraries:** NumPy & Pandas (Matrix operations and data rendering)
+
+## 🚀 Installation & Local Run
+To run this applet locally, follow these steps:
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/KryptOp76/simplex-step-solver.git](https://github.com/KryptOp76/simplex-step-solver.git)
+   cd simplex-step-solver
+2. **Install dependencies:**
+   ```bash
+   pip install streamlit pandas numpy
+3. **Run the app:**
+   ```bash
+   streamlit run app.py
