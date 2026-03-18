@@ -7,3 +7,8 @@ A step-by-step Simplex Method solver developed as a task for MAT316: Operations 
 * **Edge Case Detection:** Identifies when a problem has no finite limit.
     * **Degeneracy & Cycling:** Detects infinite loops in highly degenerate LPPs.
     * **Infeasibility:** Validates initial basic solutions for non-negative RHS values.
+
+## 🛠️ Technical Stack
+* **Language:** Python 3.x
+* **Framework:** [Streamlit](https://streamlit.io/) (Web Interface)
+* **Libraries:** NumPy & Pandas (Matrix operations and data rendering)
