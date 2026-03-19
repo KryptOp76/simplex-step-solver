@@ -127,7 +127,7 @@ st.title("Simplex Method Step-by-Step Solver")
 st.markdown("""
 Enter your initial canonical form below (comma-separated values, one row per line).
             
-💡 **Note:** The applet supports any number of variables and constraints! Just make sure every row has the same number of columns.
+💡 **Note:** The applet supports any number of variables and constraints! Just make sure every row has the same number of columns. Also, you can input both integers (e.g., 3) and decimals (e.g., 2.5). The applet handles both automatically for clean tables!
             
 📝 **Equation Format:** Assume the objective equation is in the form: $\\sum(c_ix_i) = \\text{Constant} + Z$
 """)
@@ -185,9 +185,9 @@ if st.button("Solve"):
             for var, val in solution.items():
                 formatted_val = format_number(val)
                 if var in current_basis: 
-                    basic_vars.append(f"<i>{var}</i> = {formatted_val}")
+                    basic_vars.append(f"{var} = {formatted_val}")
                 else:
-                    non_basic_vars.append(f"<i>{var}</i> = {formatted_val}")
+                    non_basic_vars.append(f"{var} = {formatted_val}")
                     
             basic_vars_str = ",  ".join(basic_vars) if basic_vars else "None"
             non_basic_vars_str = ", ".join(non_basic_vars) if non_basic_vars else "None"
