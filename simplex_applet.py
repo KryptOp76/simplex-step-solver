@@ -2,6 +2,15 @@ import numpy as np
 import streamlit as st
 import pandas as pd
 
+def format_number(val):
+    """Formats numbers: integers without decimals, floats to 1 decimal place."""
+    if np.isclose(val, np.round(val), atol=1e-7):
+        int_val = int(np.round(val))
+        # Return 0 instead of -0 for clean formatting
+        return f"{0 if int_val == 0 else int_val}"
+    else:
+        return f"{val:.1f}"
+
 def get_pivot_column(tab, problem_type):
     """Finds the entering variable based on optimization type."""
     z_row = tab[-1]
@@ -82,14 +91,18 @@ def solve_simplex(initial_tableau, problem_type):
 def get_tableau_labels(tab):
     """Dynamically generates column and row labels for the Simplex tableau."""
     num_rows, num_cols = tab.shape
-    cols = [f"x{j+1}" for j in range(num_cols - 1)] + ["RHS"]
+    
+    # --- Map normal digits to Unicode subscripts ---
+    sub = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+    
+    cols = [f"x{str(j+1).translate(sub)}" for j in range(num_cols - 1)] + ["RHS"]
     
     rows = []
     for i in range(num_rows - 1):
         basis_var = f"Row {i+1}"
         for j in range(num_cols - 1):
             if np.isclose(tab[i, j], 1.0) and np.isclose(np.sum(np.abs(tab[:, j])), 1.0):
-                basis_var = f"x{j+1}"
+                basis_var = f"x{str(j+1).translate(sub)}"
                 break
         rows.append(basis_var)
     rows.append("Z") 
@@ -97,6 +110,19 @@ def get_tableau_labels(tab):
     return cols, rows
 
 # --- STREAMLIT APPLET UI ---
+st.set_page_config(page_title="Simplex Solver", layout="centered")
+
+st.markdown("""
+<style>
+[data-testid="stDataFrame"] {
+    border: 2px solid #164E8D;
+    border-radius: 12px;
+    padding: 2px;
+    margin-bottom: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("Simplex Method Step-by-Step Solver")
 st.markdown("""
 Enter your initial canonical form below (comma-separated values, one row per line).
@@ -109,7 +135,7 @@ Enter your initial canonical form below (comma-separated values, one row per lin
 # --- User selects optimization type ---
 problem_type = st.radio("Optimization Type:", ("Minimize", "Maximize"))
 
-default_matrix = "1.0, 1.0, 1.0, 0.0, 4.0\n1.0, -1.0, 0.0, 1.0, 2.0\n-3.0, -2.0, 0.0, 0.0, 0.0"
+default_matrix = "1, 1, 1, 0, 4.5\n1, -1, 0.5, 1, 2\n-3, -2, 0, 0, 0"
 user_input = st.text_area("Initial Canonical Form:", value=default_matrix, height=150)
 
 if st.button("Solve"):
@@ -124,18 +150,15 @@ if st.button("Solve"):
         st.subheader(f"Status: {final_status}")
         
         for i, tab in enumerate(all_tables):
-            if i == 0:
-                st.write("**Initial Canonical Form**")
-            else:
-                st.write(f"**Canonical Form after Iteration {i}**")
+            st.write(f"**Iteration {i}**")
             
             col_labels, row_labels = get_tableau_labels(tab)
             df = pd.DataFrame(tab, columns=col_labels, index=row_labels)
-            st.dataframe(df.style.format("{:.3f}"))
+            
+            st.dataframe(df.style.format(format_number))
 
         # --- Final Solution Summary ---
         if "Optimal" in final_status:
-            st.success("✨ Optimal Solution Found!")
             final_tab = all_tables[-1]
             final_cols, final_rows = get_tableau_labels(final_tab)
             
@@ -153,15 +176,71 @@ if st.button("Solve"):
             # In this canonical form, the true Z is always the negative of the RHS constant
             optimal_z = optimal_z * -1
             
-            # Display the summary box
-            st.markdown("### Optimal Solution Summary")
-            col1, col2 = st.columns(2)
+            basic_vars = []
+            non_basic_vars = []
             
-            with col1:
-                for var, val in solution.items():
-                    st.write(f"**{var}** = {val:.3f}")
-            with col2:
-                st.write(f"**Optimal Z** = {optimal_z:.3f}")
+            # Grab the current basis from the final row labels (excluding 'Z')
+            current_basis = final_rows[:-1] 
+            
+            for var, val in solution.items():
+                formatted_val = format_number(val)
+                if var in current_basis: 
+                    basic_vars.append(f"<i>{var}</i> = {formatted_val}")
+                else:
+                    non_basic_vars.append(f"<i>{var}</i> = {formatted_val}")
+                    
+            basic_vars_str = ",  ".join(basic_vars) if basic_vars else "None"
+            non_basic_vars_str = ", ".join(non_basic_vars) if non_basic_vars else "None"
+            
+            # Determine the correct word for the Z value
+            val_type = "Minimum" if problem_type == "Minimize" else "Maximum"
+            
+            box_html = f"""
+            <style>
+            .summary-container {{
+                text-align: center;
+                margin-top: 25px;
+                margin-bottom: 20px;
+            }}
+            .summary-heading {{
+                color: #6bbd6e;
+                margin-bottom: 24px;
+                font-weight: bold;
+                font-size: 26px; 
+                text-align: center;
+            }}
+            .z-badge {{
+                display: inline-block;
+                border: 2px solid #4CAF50;
+                border-radius: 8px;
+                padding: 12px 30px;
+                font-size: 22px;
+                font-weight: 600;
+                background-color: rgba(76, 175, 80, 0.15);
+                margin-bottom: 25px;
+                color: var(--text-color) !important;
+            }}
+            .var-info, .var-info b, .var-info i {{
+                font-size: 18px; 
+                line-height: 1.8;
+                color: var(--text-color) !important;
+            }}
+            </style>
+            
+            <div class="summary-container">
+                <div class="summary-heading">Optimal Solution Summary</div>
+                <div class="z-badge">
+                    {val_type} value of Z = {format_number(optimal_z)}
+                </div>
+                <div class="var-info">
+                    <b>Basic Variables:</b> {basic_vars_str}
+                </div>
+                <div class="var-info">
+                    <b>Non-Basic Variables:</b> {non_basic_vars_str}
+                </div>
+            </div>
+            """
+            st.markdown(box_html, unsafe_allow_html=True)
                 
         # --- Unbounded Conclusion ---
         elif "Unbounded" in final_status:
