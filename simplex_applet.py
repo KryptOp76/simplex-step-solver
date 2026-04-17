@@ -135,7 +135,7 @@ Enter your initial canonical form below (comma-separated values, one row per lin
 # --- User selects optimization type ---
 problem_type = st.radio("Optimization Type:", ("Minimize", "Maximize"))
 
-default_matrix = "1, 1, 1, 0, 4.5\n1, -1, 0.5, 1, 2\n-3, -2, 0, 0, 0"
+default_matrix = "1, -1, 1, 0, 1\n1, 1, 0, 1, 2\n-1, -1, 0, 0, 0"
 user_input = st.text_area("Initial Canonical Form:", value=default_matrix, height=150)
 
 if st.button("Solve"):
